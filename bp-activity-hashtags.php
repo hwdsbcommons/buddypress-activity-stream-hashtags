@@ -3,7 +3,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 function etivite_bp_activity_hashtags_filter( $content ) {
 	global $bp;
-	
+
 	//what are we doing here? - same at atme mentions
 	//$pattern = '/[#]([_0-9a-zA-Z-]+)/';
 	$pattern = '/(?(?<!color: )(?<!color: )[#]([_0-9a-zA-Z-]+)|(^|\s|\b)[#]([_0-9a-zA-Z-]+))/';
@@ -13,7 +13,7 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 	//$pattern = '/(^|[^0-9A-Z&/]+)(#|\uFF03)([0-9A-Z_]*[A-Z_]+[a-z0-9_\\u00c0-\\u00d6\\u00d8-\\u00f6\\u00f8-\\u00ff]*)/i';
 	//the twitter pattern
 	//"(^|[^0-9A-Z&/]+)(#|\uFF03)([0-9A-Z_]*[A-Z_]+[a-z0-9_\\u00c0-\\u00d6\\u00d8-\\u00f6\\u00f8-\\u00ff]*)"
-	
+
 	preg_match_all( $pattern, $content, $hashtags );
 	if ( $hashtags ) {
 		/* Make sure there's only one instance of each tag */
@@ -26,7 +26,7 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 			$content = preg_replace( $pattern, ' <a href="' . $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . htmlspecialchars( $hashtag ) . '" rel="nofollow" class="hashtag">#'. htmlspecialchars( $hashtag ) .'</a>', $content );
 		}
 	}
-	
+
 	return $content;
 }
 
@@ -55,12 +55,12 @@ add_filter( 'bp_ajax_querystring', 'etivite_bp_activity_hashtags_querystring', 1
 //thanks r-a-y for the snippet
 function etivite_bp_activity_hashtags_header() {
 	global $bp, $bp_unfiltered_uri;
-	
+
 	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
 		return;
-	
+
 	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( $bp->action_variables[0] ) );
-	
+
 }
 add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
 
@@ -86,7 +86,7 @@ function etivite_bp_activity_hashtags_insert_rel_head() {
 
 	if ( empty( $bp->action_variables[0] ) )
 		return false;
-		
+
 	$link = $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
 
 	echo '<link rel="alternate" type="application/rss+xml" title="'. get_blog_option( BP_ROOT_BLOG, 'blogname' ) .' | '. esc_attr( $bp->action_variables[0] ) .' | Hashtag" href="'. $link .'" />';
@@ -118,7 +118,7 @@ function etivite_bp_activity_hashtags_action_router() {
 		return false;
 
 	if ( 'feed' == $bp->action_variables[1] ) {
-	
+
 		$link = $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] );
 		$link_self = $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
 
@@ -127,13 +127,13 @@ function etivite_bp_activity_hashtags_action_router() {
 
 		include_once( dirname( __FILE__ ) . '/feeds/bp-activity-hashtags-feed.php' );
 		die;
-	
+
 	} else {
-	
+
 		bp_core_load_template( 'activity/index' );
-	
+
 	}
-	
+
 }
 add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
 
