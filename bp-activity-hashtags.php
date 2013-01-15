@@ -59,7 +59,7 @@ function etivite_bp_activity_hashtags_header() {
 	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
 		return;
 	
-	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), $bp->action_variables[0] );
+	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( $bp->action_variables[0] ) );
 	
 }
 add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
