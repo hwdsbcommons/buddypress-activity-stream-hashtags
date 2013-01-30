@@ -22,7 +22,7 @@ function etivite_bp_activity_hashtags_init() {
 	if ( file_exists( dirname( __FILE__ ) . '/languages/' . get_locale() . '.mo' ) )
 		load_textdomain( 'bp-activity-hashtags', dirname( __FILE__ ) . '/languages/' . get_locale() . '.mo' );
 
-	$data = maybe_unserialize( get_option( 'etivite_bp_activity_stream_hashtags' ) );
+	$data = get_option( 'etivite_bp_activity_stream_hashtags' );
 
 	//if you want to change up the /activity/tag/myhashtag
 	if ( !defined( 'BP_ACTIVITY_HASHTAGS_SLUG' ) )

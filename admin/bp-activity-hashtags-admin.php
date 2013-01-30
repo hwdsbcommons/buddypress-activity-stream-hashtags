@@ -36,7 +36,7 @@ function etivite_bp_activity_hashtags_admin() {
 
 		<?php if ( isset($updated) ) : echo "<div id='message' class='updated fade'><p>" . __( 'Settings updated.', 'bp-activity-hashtags' ) . "</p></div>"; endif;
 
-		$data = maybe_unserialize( get_option( 'etivite_bp_activity_stream_hashtags' ) );
+		$data = get_option( 'etivite_bp_activity_stream_hashtags' );
 		?>
 
 		<form action="<?php echo network_admin_url('/admin.php?page=bp-activity-hashtags-settings') ?>" name="groups-autojoin-form" id="groups-autojoin-form" method="post">
