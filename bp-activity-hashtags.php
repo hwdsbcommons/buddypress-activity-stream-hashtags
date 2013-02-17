@@ -50,10 +50,17 @@ add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
 
 /** HOOKS ***************************************************************/
 
+/**
+ * Finds hashtags for a given piece of content and auto-links it.
+ *
+ * @param str $content The content we want to find hashtags for
+ * @return str If hashtags are found, they are replaced with a linked
+ *  version of that hashtag.
+ */
 function etivite_bp_activity_hashtags_filter( $content ) {
 	global $bp;
 
-	// do our matching
+	// do our hashtag matching
 	preg_match_all( $bp->activity->hashtags->pattern, $content, $hashtags );
 
 	if ( $hashtags ) {
@@ -71,6 +78,13 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 	return $content;
 }
 
+/**
+ * Modifies the activity querystring to find our hashtags.
+ *
+ * @param str $query_string The unmodified querystring
+ * @return str If we're on our specialized hashtag screen,
+ *  modify the querystring to find our hashtags.
+ */
 function etivite_bp_activity_hashtags_querystring( $query_string, $object ) {
 	global $bp;
 
@@ -93,6 +107,13 @@ function etivite_bp_activity_hashtags_querystring( $query_string, $object ) {
 }
 add_filter( 'bp_ajax_querystring', 'etivite_bp_activity_hashtags_querystring', 11, 2 );
 
+/**
+ * Modifies the page title if we're on a hashtag page.
+ *
+ * @param str $title The unmodified page title
+ * @return str If we're on our specialized hashtag screen,
+ *  modify the page title to include our hashtag.
+ */
 function etivite_bp_activity_hashtags_page_title( $title) {
 	global $bp;
 
@@ -107,6 +128,13 @@ function etivite_bp_activity_hashtags_page_title( $title) {
 }
 add_filter( 'wp_title', 'etivite_bp_activity_hashtags_page_title', 99 );
 
+/**
+ * Modifies the sitewide activity feed link if we're on a hashtag page.
+ *
+ * @param str $title The unmodified feed URL
+ * @return str If we're on our specialized hashtag screen,
+ *  modify the feed URL to use our hashtag feed instead.
+ */
 function etivite_bp_activity_hashtags_activity_feed_link( $feedurl ) {
 	global $bp;
 
@@ -121,7 +149,9 @@ function etivite_bp_activity_hashtags_activity_feed_link( $feedurl ) {
 }
 add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_activity_feed_link', 1, 1 );
 
-//thanks r-a-y for the snippet
+/**
+ * Inject a header if we're on a hashtag page.
+ */
 function etivite_bp_activity_hashtags_header() {
 	global $bp, $bp_unfiltered_uri;
 
@@ -133,6 +163,9 @@ function etivite_bp_activity_hashtags_header() {
 }
 add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
 
+/**
+ * Inject a hashtag feed into the <head> if we're on a hashtag page.
+ */
 function etivite_bp_activity_hashtags_insert_rel_head() {
 	global $bp;
 
