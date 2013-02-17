@@ -132,7 +132,12 @@ function etivite_bp_activity_hashtags_action_router() {
 }
 add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
 
-
+/**
+ * Returns current activity in the activity loop.
+ *
+ * Used in the custom hashtag feed.
+ * @see etivite_bp_activity_hashtags_action_router()
+ */
 function etivite_bp_activity_hashtags_current_activity() {
 	global $activities_template;
 	return $activities_template->current_activity;
