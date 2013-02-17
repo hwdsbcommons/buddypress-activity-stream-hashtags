@@ -8,7 +8,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bp_activity_hashtags_setup_globals() {
 	global $bp;
-	
+
 	// create a new object and stuff under the current 'activity' component object
 	$bp->activity->hashtags = new stdClass;
 
@@ -16,6 +16,55 @@ function bp_activity_hashtags_setup_globals() {
 	$bp->activity->hashtags->pattern = bp_activity_hashtags_get_regex();
 }
 add_action( 'bp_setup_globals', 'bp_activity_hashtags_setup_globals' );
+
+/**
+ * Register taxonomy for hashtags.
+ */
+function bp_activity_hashtags_register_taxonomy() {
+	// Setup our taxonomy args
+	$args = array(
+		'labels' => array(
+			'name'          => __( 'Hashtags', 'bp-activity-hashtags' ),
+			'singular_name' => __( 'Hashtag',  'bp-activity-hashtags' ),
+			'menu_name'     => __( 'Hashtags', 'bp-activity-hashtags' ),
+			'search_items'  => __( 'Search Hashtags', 'bp-activity-hashtags' )
+		),
+		'capabilities' => array(
+			'manage_terms' => 'edit_users', // Using 'edit_users' cap to keep this simple.
+			'edit_terms'   => 'edit_users',
+			'delete_terms' => 'edit_users',
+			'assign_terms' => 'read',
+		),
+		//'update_count_callback' => 'my_update_profession_count', // Use a custom function to update the count.
+		'query_var' => false,
+		'rewrite'   => false
+	);
+
+	// register the 'hashtag' taxonomy
+	//
+	// issues to be aware of:
+	// (1) we're attaching this to the 'activity' object type, which doesn't exist
+	//     and is more like a pseudo-type. but WP doesn't block this functionality
+	//     at the moment. however WP could "fix" this in the future and break this
+	//
+	//     FWIW, Justin Tadlock does the same thing in his tutorial:
+	//     http://justintadlock.com/archives/2011/10/20/custom-user-taxonomies-in-wordpress
+	//
+	//     The 'user' object type doesn't exist.
+	//
+	// (2) Conflicting object IDs noted by Boone Gorges
+	//     http://justintadlock.com/archives/2011/10/20/custom-user-taxonomies-in-wordpress#comment-503194
+	register_taxonomy(
+		'hashtag',
+		apply_filters( 'bp_activity_hashtags_object_type', 'activity' ),
+		apply_filters( 'bp_activity_hashtags_taxonomy_args', $args )
+	);
+
+	// testing this...
+	//register_taxonomy_for_object_type( 'hashtag', 'activity' );
+}
+
+add_action( 'init', 'bp_activity_hashtags_register_taxonomy', 0 );
 
 /** SCREENS *************************************************************/
 
@@ -74,6 +123,9 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 		if ( ! $hashtags = array_unique( $hashtags[3] ) )
 			return $content;
 
+		// save hashtags for later reference so we don't have to parse again
+		$bp->activity->hashtags->temp = $hashtags;
+
 		// watch for edits and if something was already wrapped in html link - thus check for space or word boundary prior
 		foreach( (array)$hashtags as $hashtag ) {
 			$pattern = "/(^|\s|\b)#". $hashtag ."($|\b)/";
@@ -83,6 +135,46 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 
 	return $content;
 }
+
+/**
+ * If hashtags exist in an activity entry, save each tag as a taxonomy term.
+ *
+ * @param obj The BP activity object after saving the entry
+ */
+function bp_activity_hashtags_save_terms( $activity ) {
+	global $bp;
+
+	// see if hashtags were made
+	if ( empty( $bp->activity->hashtags->temp ) )
+		return;
+
+	// save the terms
+	foreach ( (array) $bp->activity->hashtags->temp as $hashtag ) {
+		wp_set_object_terms( $activity->id, $hashtag, 'hashtag' );
+	}
+
+	// unset our temp variable
+	unset( $bp->activity->hashtags->temp );
+}
+add_action( 'bp_activity_after_save', 'bp_activity_hashtags_save_terms' );
+
+/**
+ * Removes hashtags from the taxonomy term relationship tables after an
+ * activity entry is deleted.
+ *
+ * @param array The activity IDs that were deleted
+ */
+function bp_activity_hashtags_delete_terms( $ids ) {
+	// sanity check
+	if ( empty( $ids ) )
+		return;
+
+	// remove the terms
+	foreach ( (array) $ids as $id ) {
+		wp_delete_object_term_relationships( $id, 'hashtag' );
+	}
+}
+add_action( 'bp_activity_deleted_activities', 'bp_activity_hashtags_delete_terms' );
 
 /**
  * Modifies the activity querystring to find our hashtags.
@@ -320,7 +412,7 @@ function bp_activity_hashtags_get_regex() {
 	#   0xD7B0-0xD7FF Hangul Jamo Extended B
 	#   0xFFA1-0xFFDC Half-Width Hangul
 	$tmp['non_latin_hashtag_chars'] .= '\x{0e40}-\x{0e4e}\x{1100}-\x{11ff}\x{3130}-\x{3185}\x{a960}-\x{a97f}\x{ac00}-\x{d7af}\x{d7b0}-\x{d7ff}\x{ffa1}-\x{ffdc}';
-	
+
 	# Expression to match other characters.
 	#
 	#   0x30A1-0x30FA   Katakana (Full-Width)
@@ -341,13 +433,13 @@ function bp_activity_hashtags_get_regex() {
 	#   0x3005          Kanji (CJK supplement)
 	#   0x303B          Kanji (CJK supplement)
 	$tmp['cj_hashtag_characters'] = '\x{30A1}-\x{30FA}\x{30FC}-\x{30FE}\x{FF66}-\x{FF9F}\x{FF10}-\x{FF19}\x{FF21}-\x{FF3A}\x{FF41}-\x{FF5A}\x{3041}-\x{3096}\x{3099}-\x{309E}\x{3400}-\x{4DBF}\x{4E00}-\x{9FFF}\x{3003}\x{3005}\x{303B}\x{020000}-\x{02a6df}\x{02a700}-\x{02b73f}\x{02b740}-\x{02b81f}\x{02f800}-\x{02fa1f}';
-	
+
 	$tmp['hashtag_alpha']        = '[a-z_'.$tmp['latin_accents'].$tmp['non_latin_hashtag_chars'].$tmp['cj_hashtag_characters'].']';
 	$tmp['hashtag_alphanumeric'] = '[a-z0-9_'.$tmp['latin_accents'].$tmp['non_latin_hashtag_chars'].$tmp['cj_hashtag_characters'].']';
 	$tmp['hashtag_boundary']     = '(?:\A|\z|[^&a-z0-9_'.$tmp['latin_accents'].$tmp['non_latin_hashtag_chars'].$tmp['cj_hashtag_characters'].'])';
 
 	$tmp['hashtag'] = '('.$tmp['hashtag_boundary'].')(#|＃)('.$tmp['hashtag_alphanumeric'].'*'.$tmp['hashtag_alpha'].$tmp['hashtag_alphanumeric'].'*)';
-	
+
 	return '/'.$tmp['hashtag'].'(?=(.*|$))/iu';
 
 }
