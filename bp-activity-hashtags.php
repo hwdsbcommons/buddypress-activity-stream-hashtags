@@ -63,11 +63,9 @@ function bp_activity_hashtags_register_taxonomy() {
 		apply_filters( 'bp_activity_hashtags_taxonomy_args', $args )
 	);
 
-	// testing this...
-	//register_taxonomy_for_object_type( 'hashtag', 'activity' );
 }
 
-add_action( 'init', 'bp_activity_hashtags_register_taxonomy', 0 );
+add_action( 'bp_setup_globals', 'bp_activity_hashtags_register_taxonomy' );
 
 /** SCREENS *************************************************************/
 
