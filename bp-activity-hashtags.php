@@ -17,9 +17,15 @@ function bp_activity_hashtags_setup_globals() {
 }
 add_action( 'bp_setup_globals', 'bp_activity_hashtags_setup_globals' );
 
-/** ACTIONS *************************************************************/
+/** SCREENS *************************************************************/
 
-function etivite_bp_activity_hashtags_action_router() {
+/**
+ * Screen router for activity hashtags.
+ *
+ * Determines if we're on a hashtag page. If so, sends things along their
+ * merry way!
+ */
+function etivite_bp_activity_hashtags_screen_router() {
 	global $bp, $wp_query;
 
 	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
@@ -46,7 +52,7 @@ function etivite_bp_activity_hashtags_action_router() {
 	}
 
 }
-add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
+add_action( 'bp_screens', 'etivite_bp_activity_hashtags_screen_router' );
 
 /** HOOKS ***************************************************************/
 
