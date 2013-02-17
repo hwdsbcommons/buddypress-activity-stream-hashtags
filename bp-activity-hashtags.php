@@ -18,7 +18,7 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 		// watch for edits and if something was already wrapped in html link - thus check for space or word boundary prior
 		foreach( (array)$hashtags as $hashtag ) {
 			$pattern = "/(^|\s|\b)#". $hashtag ."($|\b)/";
-			$content = preg_replace( $pattern, ' <a href="' .  bp_get_activity_directory_permalink() . constant( "BP_ACTIVITY_HASHTAGS_SLUG" ) . "/" . htmlspecialchars( $hashtag ) . '" rel="nofollow" class="hashtag">#'. htmlspecialchars( $hashtag ) .'</a>', $content );
+			$content = preg_replace( $pattern, ' <a href="' .  bp_get_activity_hashtags_permalink( htmlspecialchars( $hashtag ) ). '" rel="nofollow" class="hashtag">#'. htmlspecialchars( $hashtag ) .'</a>', $content );
 		}
 	}
 
@@ -82,7 +82,7 @@ function etivite_bp_activity_hashtags_insert_rel_head() {
 	if ( empty( $bp->action_variables[0] ) )
 		return false;
 
-	$link = $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
+	$link = bp_get_activity_hashtags_permalink( esc_attr( $bp->action_variables[0] ) ) . '/feed/';
 
 	echo '<link rel="alternate" type="application/rss+xml" title="'. get_blog_option( BP_ROOT_BLOG, 'blogname' ) .' | '. esc_attr( $bp->action_variables[0] ) .' | Hashtag" href="'. $link .'" />';
 }
@@ -114,8 +114,8 @@ function etivite_bp_activity_hashtags_action_router() {
 
 	if ( 'feed' == $bp->action_variables[1] ) {
 
-		$link = $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] );
-		$link_self = $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
+		$link      = bp_get_activity_hashtags_permalink( esc_attr( $bp->action_variables[0] ) );
+		$link_self = $link . '/feed/';
 
 		$wp_query->is_404 = false;
 		status_header( 200 );
@@ -136,6 +136,18 @@ add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
 function etivite_bp_activity_hashtags_current_activity() {
 	global $activities_template;
 	return $activities_template->current_activity;
+}
+
+/**
+ * Template tag to return the activity hashtag permalink.
+ *
+ * @param str $hashtag The hashtag to append to the hashtag permalink.
+ * @return str The full activity hashtag permalink
+ */
+function bp_get_activity_hashtags_permalink( $hashtag = false ) {
+	$hashtag = ! empty( $hashtag ) && is_string( $hashtag ) ? $hashtag : '';
+
+	return bp_get_activity_directory_permalink() . constant( "BP_ACTIVITY_HASHTAGS_SLUG" ) . "/" . $hashtag;
 }
 
 /**
