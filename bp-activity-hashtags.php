@@ -12,8 +12,11 @@ function bp_activity_hashtags_setup_globals() {
 	// create a new object and stuff under the current 'activity' component object
 	$bp->activity->hashtags = new stdClass;
 
+	// taxonomy name for our hashtags taxonomy
+	$bp->activity->hashtags->taxonomy = 'hashtag';
+
 	// save our regex pattern for later reference
-	$bp->activity->hashtags->pattern = bp_activity_hashtags_get_regex();
+	$bp->activity->hashtags->pattern  = bp_activity_hashtags_get_regex();
 }
 add_action( 'bp_setup_globals', 'bp_activity_hashtags_setup_globals' );
 
@@ -55,7 +58,7 @@ function bp_activity_hashtags_register_taxonomy() {
 	// (2) Conflicting object IDs noted by Boone Gorges
 	//     http://justintadlock.com/archives/2011/10/20/custom-user-taxonomies-in-wordpress#comment-503194
 	register_taxonomy(
-		'hashtag',
+		bp_activity_hashtags_get_data( 'taxonomy' ),
 		apply_filters( 'bp_activity_hashtags_object_type', 'activity' ),
 		apply_filters( 'bp_activity_hashtags_taxonomy_args', $args )
 	);
@@ -113,15 +116,15 @@ add_action( 'bp_screens', 'etivite_bp_activity_hashtags_screen_router' );
  *  version of that hashtag.
  */
 function etivite_bp_activity_hashtags_filter( $content ) {
-	global $bp;
-
 	// do our hashtag matching
-	preg_match_all( $bp->activity->hashtags->pattern, $content, $hashtags );
+	preg_match_all( bp_activity_hashtags_get_data( 'pattern' ), $content, $hashtags );
 
 	if ( $hashtags ) {
 		// Make sure there's only one instance of each tag
 		if ( ! $hashtags = array_unique( $hashtags[3] ) )
 			return $content;
+
+		global $bp;
 
 		// save hashtags for later reference so we don't have to parse again
 		$bp->activity->hashtags->temp = $hashtags;
@@ -150,7 +153,7 @@ function bp_activity_hashtags_save_terms( $activity ) {
 
 	// save the terms
 	foreach ( (array) $bp->activity->hashtags->temp as $hashtag ) {
-		wp_set_object_terms( $activity->id, $hashtag, 'hashtag' );
+		wp_set_object_terms( $activity->id, $hashtag, bp_activity_hashtags_get_data( 'taxonomy' ) );
 	}
 
 	// unset our temp variable
@@ -171,7 +174,7 @@ function bp_activity_hashtags_delete_terms( $ids ) {
 
 	// remove the terms
 	foreach ( (array) $ids as $id ) {
-		wp_delete_object_term_relationships( $id, 'hashtag' );
+		wp_delete_object_term_relationships( $id, bp_activity_hashtags_get_data( 'taxonomy' ) );
 	}
 }
 add_action( 'bp_activity_deleted_activities', 'bp_activity_hashtags_delete_terms' );
@@ -302,6 +305,21 @@ function bp_get_activity_hashtags_permalink( $hashtag = false ) {
 	$hashtag = ! empty( $hashtag ) && is_string( $hashtag ) ? trailingslashit( $hashtag ) : '';
 
 	return bp_get_activity_directory_permalink() . constant( "BP_ACTIVITY_HASHTAGS_SLUG" ) . "/" . $hashtag;
+}
+
+/**
+ * Returns a variable from our activity hashtags data object.
+ *
+ * @param str Name of variable we want to grab
+ * @return mixed
+ */
+function bp_activity_hashtags_get_data( $variable = false ) {
+	if ( empty( $variable ) )
+		return false;
+
+	global $bp;
+
+	return ! empty( $bp->activity->hashtags->$variable ) ? $bp->activity->hashtags->$variable : false;
 }
 
 /**
