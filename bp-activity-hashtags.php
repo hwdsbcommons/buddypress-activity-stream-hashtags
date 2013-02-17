@@ -207,7 +207,7 @@ function etivite_bp_activity_hashtags_current_activity() {
  * @return str The full activity hashtag permalink
  */
 function bp_get_activity_hashtags_permalink( $hashtag = false ) {
-	$hashtag = ! empty( $hashtag ) && is_string( $hashtag ) ? $hashtag : '';
+	$hashtag = ! empty( $hashtag ) && is_string( $hashtag ) ? trailingslashit( $hashtag ) : '';
 
 	return bp_get_activity_directory_permalink() . constant( "BP_ACTIVITY_HASHTAGS_SLUG" ) . "/" . $hashtag;
 }
