@@ -18,7 +18,7 @@ function etivite_bp_activity_hashtags_filter( $content ) {
 		// watch for edits and if something was already wrapped in html link - thus check for space or word boundary prior
 		foreach( (array)$hashtags as $hashtag ) {
 			$pattern = "/(^|\s|\b)#". $hashtag ."($|\b)/";
-			$content = preg_replace( $pattern, ' <a href="' . $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . htmlspecialchars( $hashtag ) . '" rel="nofollow" class="hashtag">#'. htmlspecialchars( $hashtag ) .'</a>', $content );
+			$content = preg_replace( $pattern, ' <a href="' .  bp_get_activity_directory_permalink() . constant( "BP_ACTIVITY_HASHTAGS_SLUG" ) . "/" . htmlspecialchars( $hashtag ) . '" rel="nofollow" class="hashtag">#'. htmlspecialchars( $hashtag ) .'</a>', $content );
 		}
 	}
 
