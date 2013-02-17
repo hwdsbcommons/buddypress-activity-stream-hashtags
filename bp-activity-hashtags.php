@@ -1,14 +1,60 @@
 <?php
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/** REGISTRATION ********************************************************/
+
+/**
+ * Setup globals.
+ */
+function bp_activity_hashtags_setup_globals() {
+	global $bp;
+	
+	// create a new object and stuff under the current 'activity' component object
+	$bp->activity->hashtags = new stdClass;
+
+	// save our regex pattern for later reference
+	$bp->activity->hashtags->pattern = bp_activity_hashtags_get_regex();
+}
+add_action( 'bp_setup_globals', 'bp_activity_hashtags_setup_globals' );
+
+/** ACTIONS *************************************************************/
+
+function etivite_bp_activity_hashtags_action_router() {
+	global $bp, $wp_query;
+
+	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+		return false;
+
+	if ( empty( $bp->action_variables[0] ) )
+		return false;
+
+	if ( 'feed' == $bp->action_variables[1] ) {
+
+		$link      = bp_get_activity_hashtags_permalink( esc_attr( $bp->action_variables[0] ) );
+		$link_self = $link . '/feed/';
+
+		$wp_query->is_404 = false;
+		status_header( 200 );
+
+		include_once( dirname( __FILE__ ) . '/feeds/bp-activity-hashtags-feed.php' );
+		die;
+
+	} else {
+
+		bp_core_load_template( 'activity/index' );
+
+	}
+
+}
+add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
+
+/** HOOKS ***************************************************************/
+
 function etivite_bp_activity_hashtags_filter( $content ) {
 	global $bp;
 
-	// setup regex pattern used to find hashtags
-	$pattern = bp_activity_hashtags_get_regex();
-
 	// do our matching
-	preg_match_all( $pattern, $content, $hashtags );
+	preg_match_all( $bp->activity->hashtags->pattern, $content, $hashtags );
 
 	if ( $hashtags ) {
 		// Make sure there's only one instance of each tag
@@ -47,18 +93,6 @@ function etivite_bp_activity_hashtags_querystring( $query_string, $object ) {
 }
 add_filter( 'bp_ajax_querystring', 'etivite_bp_activity_hashtags_querystring', 11, 2 );
 
-//thanks r-a-y for the snippet
-function etivite_bp_activity_hashtags_header() {
-	global $bp, $bp_unfiltered_uri;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
-		return;
-
-	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( $bp->action_variables[0] ) );
-
-}
-add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
-
 function etivite_bp_activity_hashtags_page_title( $title) {
 	global $bp;
 
@@ -72,6 +106,32 @@ function etivite_bp_activity_hashtags_page_title( $title) {
 
 }
 add_filter( 'wp_title', 'etivite_bp_activity_hashtags_page_title', 99 );
+
+function etivite_bp_activity_hashtags_activity_feed_link( $feedurl ) {
+	global $bp;
+
+	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+		return $feedurl;
+
+	if ( empty( $bp->action_variables[0] ) )
+		return $feedurl;
+
+	return $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
+
+}
+add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_activity_feed_link', 1, 1 );
+
+//thanks r-a-y for the snippet
+function etivite_bp_activity_hashtags_header() {
+	global $bp, $bp_unfiltered_uri;
+
+	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+		return;
+
+	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( $bp->action_variables[0] ) );
+
+}
+add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
 
 function etivite_bp_activity_hashtags_insert_rel_head() {
 	global $bp;
@@ -88,49 +148,7 @@ function etivite_bp_activity_hashtags_insert_rel_head() {
 }
 add_action('bp_head','etivite_bp_activity_hashtags_insert_rel_head');
 
-
-function etivite_bp_activity_hashtags_activity_feed_link( $feedurl ) {
-	global $bp;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
-		return $feedurl;
-
-	if ( empty( $bp->action_variables[0] ) )
-		return $feedurl;
-
-	return $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
-
-}
-add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_activity_feed_link', 1, 1 );
-
-function etivite_bp_activity_hashtags_action_router() {
-	global $bp, $wp_query;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
-		return false;
-
-	if ( empty( $bp->action_variables[0] ) )
-		return false;
-
-	if ( 'feed' == $bp->action_variables[1] ) {
-
-		$link      = bp_get_activity_hashtags_permalink( esc_attr( $bp->action_variables[0] ) );
-		$link_self = $link . '/feed/';
-
-		$wp_query->is_404 = false;
-		status_header( 200 );
-
-		include_once( dirname( __FILE__ ) . '/feeds/bp-activity-hashtags-feed.php' );
-		die;
-
-	} else {
-
-		bp_core_load_template( 'activity/index' );
-
-	}
-
-}
-add_action( 'wp', 'etivite_bp_activity_hashtags_action_router', 3 );
+/** FUNCTIONS ***********************************************************/
 
 /**
  * Returns current activity in the activity loop.
