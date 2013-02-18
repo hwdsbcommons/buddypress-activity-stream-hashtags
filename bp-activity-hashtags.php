@@ -217,7 +217,7 @@ function etivite_bp_activity_hashtags_page_title( $title) {
 	if ( ! bp_action_variables() )
 		return $title;
 
-	return apply_filters( 'bp_activity_page_title', 'Activity results for #'. esc_attr( bp_action_variable( 0 ) ) . $title, esc_attr( bp_action_variable( 0 ) ) );
+	return apply_filters( 'bp_activity_page_title', 'Activity results for #'. urldecode( esc_attr( bp_action_variable( 0 ) ) ) . $title, esc_attr( bp_action_variable( 0 ) ) );
 
 }
 add_filter( 'wp_title', 'etivite_bp_activity_hashtags_page_title', 99 );
@@ -248,7 +248,7 @@ function etivite_bp_activity_hashtags_header() {
 	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return;
 
-	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( bp_action_variable( 0 ) ) );
+	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( esc_attr( bp_action_variable( 0 ) ) ) );
 
 }
 add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
