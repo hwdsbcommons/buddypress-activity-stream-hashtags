@@ -82,7 +82,7 @@ function etivite_bp_activity_hashtags_screen_router() {
 	if ( ! bp_action_variables() )
 		return false;
 
-	if ( 'feed' == $bp->action_variables[1] ) {
+	if ( bp_is_action_variable( 'feed', 1 ) ) {
 		global $wp_query;
 
 		$link      = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) );
