@@ -76,17 +76,16 @@ add_action( 'bp_setup_globals', 'bp_activity_hashtags_register_taxonomy' );
  * merry way!
  */
 function etivite_bp_activity_hashtags_screen_router() {
-	global $bp, $wp_query;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return false;
 
-	if ( empty( $bp->action_variables[0] ) )
+	if ( ! bp_action_variables() )
 		return false;
 
 	if ( 'feed' == $bp->action_variables[1] ) {
+		global $wp_query;
 
-		$link      = bp_get_activity_hashtags_permalink( esc_attr( $bp->action_variables[0] ) );
+		$link      = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) );
 		$link_self = $link . '/feed/';
 
 		$wp_query->is_404 = false;
@@ -185,22 +184,20 @@ add_action( 'bp_activity_deleted_activities', 'bp_activity_hashtags_delete_terms
  *  modify the querystring to find our hashtags.
  */
 function etivite_bp_activity_hashtags_querystring( $query_string, $object ) {
-	global $bp;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return $query_string;
 
-	if ( empty( $bp->action_variables[0] ) )
+	if ( ! bp_action_variables() )
 		return $query_string;
 
-	if ( 'feed' == $bp->action_variables[1] )
+	if ( bp_is_action_variable( 'feed', 1 ) )
 		return $query_string;
 
 	if ( strlen( $query_string ) < 1 )
-		return 'display_comments=true&search_terms=#'. $bp->action_variables[0] . '<';
+		return 'display_comments=true&search_terms=#'. bp_action_variable( 0 ) . '<';
 
 	/* Now pass the querystring to override default values. */
-	$query_string .= '&display_comments=true&search_terms=#'. $bp->action_variables[0] . '<';
+	$query_string .= '&display_comments=true&search_terms=#'. bp_action_variable( 0 ) . '<';
 
 	return $query_string;
 }
@@ -214,15 +211,13 @@ add_filter( 'bp_ajax_querystring', 'etivite_bp_activity_hashtags_querystring', 1
  *  modify the page title to include our hashtag.
  */
 function etivite_bp_activity_hashtags_page_title( $title) {
-	global $bp;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return $title;
 
-	if ( empty( $bp->action_variables[0] ) )
+	if ( ! bp_action_variables() )
 		return $title;
 
-	return apply_filters( 'bp_activity_page_title', 'Activity results for #'. esc_attr( $bp->action_variables[0] ) . $title, esc_attr( $bp->action_variables[0] ) );
+	return apply_filters( 'bp_activity_page_title', 'Activity results for #'. esc_attr( bp_action_variable( 0 ) ) . $title, esc_attr( bp_action_variable( 0 ) ) );
 
 }
 add_filter( 'wp_title', 'etivite_bp_activity_hashtags_page_title', 99 );
@@ -235,15 +230,13 @@ add_filter( 'wp_title', 'etivite_bp_activity_hashtags_page_title', 99 );
  *  modify the feed URL to use our hashtag feed instead.
  */
 function etivite_bp_activity_hashtags_activity_feed_link( $feedurl ) {
-	global $bp;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return $feedurl;
 
-	if ( empty( $bp->action_variables[0] ) )
+	if ( ! bp_action_variables() )
 		return $feedurl;
 
-	return $bp->root_domain . "/" . $bp->activity->slug . "/". BP_ACTIVITY_HASHTAGS_SLUG ."/" . esc_attr( $bp->action_variables[0] ) . '/feed/';
+	return bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ) . '/feed/';
 
 }
 add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_activity_feed_link', 1, 1 );
@@ -252,12 +245,10 @@ add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_
  * Inject a header if we're on a hashtag page.
  */
 function etivite_bp_activity_hashtags_header() {
-	global $bp, $bp_unfiltered_uri;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return;
 
-	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( $bp->action_variables[0] ) );
+	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( bp_action_variable( 0 ) ) );
 
 }
 add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
@@ -266,17 +257,15 @@ add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
  * Inject a hashtag feed into the <head> if we're on a hashtag page.
  */
 function etivite_bp_activity_hashtags_insert_rel_head() {
-	global $bp;
-
-	if ( !bp_is_activity_component() || $bp->current_action != BP_ACTIVITY_HASHTAGS_SLUG )
+	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return false;
 
-	if ( empty( $bp->action_variables[0] ) )
+	if ( ! bp_action_variables() )
 		return false;
 
-	$link = bp_get_activity_hashtags_permalink( esc_attr( $bp->action_variables[0] ) ) . '/feed/';
+	$link = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ) . '/feed/';
 
-	echo '<link rel="alternate" type="application/rss+xml" title="'. get_blog_option( BP_ROOT_BLOG, 'blogname' ) .' | '. esc_attr( $bp->action_variables[0] ) .' | Hashtag" href="'. $link .'" />';
+	echo '<link rel="alternate" type="application/rss+xml" title="'. get_blog_option( BP_ROOT_BLOG, 'blogname' ) .' | '. esc_attr( bp_action_variable( 0 ) ) .' | Hashtag" href="'. $link .'" />';
 }
 add_action('bp_head','etivite_bp_activity_hashtags_insert_rel_head');
 
