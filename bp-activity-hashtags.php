@@ -236,7 +236,7 @@ function etivite_bp_activity_hashtags_activity_feed_link( $feedurl ) {
 	if ( ! bp_action_variables() )
 		return $feedurl;
 
-	return bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ) . '/feed/';
+	return bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ) . 'feed/';
 
 }
 add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_activity_feed_link', 1, 1 );
@@ -263,11 +263,11 @@ function etivite_bp_activity_hashtags_insert_rel_head() {
 	if ( ! bp_action_variables() )
 		return false;
 
-	$link = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ) . '/feed/';
+	$link = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ) . 'feed/';
 
 	echo '<link rel="alternate" type="application/rss+xml" title="'. get_blog_option( BP_ROOT_BLOG, 'blogname' ) .' | '. esc_attr( bp_action_variable( 0 ) ) .' | Hashtag" href="'. $link .'" />';
 }
-add_action('bp_head','etivite_bp_activity_hashtags_insert_rel_head');
+add_action( 'bp_head', 'etivite_bp_activity_hashtags_insert_rel_head' );
 
 /** FUNCTIONS ***********************************************************/
 
