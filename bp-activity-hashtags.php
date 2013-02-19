@@ -269,6 +269,82 @@ function etivite_bp_activity_hashtags_insert_rel_head() {
 }
 add_action( 'bp_head', 'etivite_bp_activity_hashtags_insert_rel_head' );
 
+/**
+ * Filter the default "Tag Cloud" widget.
+ *
+ * If using the 'Hashtags' taxonomy for the built-in tag cloud widget, filter
+ * the tag permalink to use our activity hashtag permalink.
+ *
+ * @param mixed $retval Either an array or string of the generated tag cloud.
+ * @param mixed $tags If tags exist, an array of tags, else boolean false.
+ * @param array $args Tag cloud arguments
+ * @return mixed Either an array or string of the generated tag cloud.
+ */
+function bp_activity_hashtags_tag_cloud_filter( $retval, $tags, $args ) {
+	if ( $args['taxonomy'] != bp_activity_hashtags_get_data( 'taxonomy' ) )
+		return $retval;
+
+	if ( empty( $tags ) )
+		return $retval;
+
+	/** the following is mostly a duplicate of wp_generate_tag_cloud() *****/
+
+	extract( $args );
+
+	$counts = array();
+	$real_counts = array(); // For the alt tag
+	foreach ( (array) $tags as $key => $tag ) {
+		$real_counts[ $key ] = $tag->count;
+		$counts[ $key ] = $topic_count_scale_callback($tag->count);
+	}
+
+	$min_count = min( $counts );
+	$spread = max( $counts ) - $min_count;
+	if ( $spread <= 0 )
+		$spread = 1;
+	$font_spread = $largest - $smallest;
+	if ( $font_spread < 0 )
+		$font_spread = 1;
+	$font_step = $font_spread / $spread;
+
+	$a = array();
+
+	foreach ( $tags as $key => $tag ) {
+		$count = $counts[ $key ];
+		$real_count = $real_counts[ $key ];
+
+		// changed this to use the activity hashtag permalink
+		$tag_link = bp_get_activity_hashtags_permalink( $tag->slug );
+
+		// changed tag title to use custom localization
+		$tag_title = sprintf( _n( '1 mention', '%s mentions', $real_count, 'bp-activity-hashtags' ), $real_count );
+
+		$tag_id = isset($tags[ $key ]->id) ? $tags[ $key ]->id : $key;
+		$tag_name = $tags[ $key ]->name;
+		
+		$a[] = "<a href='$tag_link' class='tag-link-$tag_id' title='" . esc_attr__( $tag_title ) . "' style='font-size: " .
+			str_replace( ',', '.', ( $smallest + ( ( $count - $min_count ) * $font_step ) ) )
+			. "$unit;'>#$tag_name</a>";
+	}
+
+	switch ( $format ) :
+		case 'array' :
+			$return =& $a;
+			break;
+		case 'list' :
+			$return = "<ul class='wp-tag-cloud'>\n\t<li>";
+			$return .= join( "</li>\n\t<li>", $a );
+			$return .= "</li>\n</ul>\n";
+			break;
+		default :
+			$return = join( $separator, $a );
+		break;
+	endswitch;
+
+	return $return;
+}
+add_filter( 'wp_generate_tag_cloud', 'bp_activity_hashtags_tag_cloud_filter', 10, 3 );
+
 /** FUNCTIONS ***********************************************************/
 
 /**
