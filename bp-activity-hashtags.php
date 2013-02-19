@@ -27,18 +27,17 @@ function bp_activity_hashtags_register_taxonomy() {
 	// Setup our taxonomy args
 	$args = array(
 		'labels' => array(
-			'name'          => __( 'Hashtags', 'bp-activity-hashtags' ),
+			'name'          => __( 'Activity Hashtags', 'bp-activity-hashtags' ),
 			'singular_name' => __( 'Hashtag',  'bp-activity-hashtags' ),
 			'menu_name'     => __( 'Hashtags', 'bp-activity-hashtags' ),
 			'search_items'  => __( 'Search Hashtags', 'bp-activity-hashtags' )
 		),
 		'capabilities' => array(
-			'manage_terms' => 'edit_users', // Using 'edit_users' cap to keep this simple.
+			'manage_terms' => 'edit_users',
 			'edit_terms'   => 'edit_users',
 			'delete_terms' => 'edit_users',
 			'assign_terms' => 'read',
 		),
-		//'update_count_callback' => 'my_update_profession_count', // Use a custom function to update the count.
 		'query_var' => false,
 		'rewrite'   => false
 	);
