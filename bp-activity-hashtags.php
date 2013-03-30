@@ -94,6 +94,10 @@ function etivite_bp_activity_hashtags_screen_router() {
 		die;
 
 	} else {
+		// BP 1.7 - add theme compat
+		if ( class_exists( 'BP_Theme_Compat' ) ) {
+			new BP_Activity_Hashtags_Theme_Compat();
+		}
 
 		bp_core_load_template( 'activity/index' );
 
@@ -101,6 +105,56 @@ function etivite_bp_activity_hashtags_screen_router() {
 
 }
 add_action( 'bp_screens', 'etivite_bp_activity_hashtags_screen_router' );
+
+/**
+ * The main theme compat class for BP Activity Hashtags
+ *
+ * This class sets up the necessary theme compatability actions to safely output
+ * the template part to the_title and the_content areas of a theme.
+ */
+class BP_Activity_HashTags_Theme_Compat {
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		add_action( 'bp_setup_theme_compat', array( $this, 'setup_theme_compat' ) );
+	}
+
+	/**
+	 * Setup theme compatibility for BP Activity Hashtags
+	 */
+	public function setup_theme_compat() {
+
+		add_action( 'bp_template_include_reset_dummy_post_data', array( $this, 'dummy_post' ) );
+		add_filter( 'bp_replace_the_content',                    array( $this, 'content'    ) );
+	}
+
+	/**
+	 * Update the global $post with dummy data
+	 */
+	public function dummy_post() {
+		bp_theme_compat_reset_post( array(
+			'ID'             => 0,
+			'post_title'     => __( 'Sitewide Activity', 'buddypress' ),
+			'post_author'    => 0,
+			'post_date'      => 0,
+			'post_content'   => '',
+			'post_type'      => 'bp_activity',
+			'post_status'    => 'publish',
+			'is_archive'     => true,
+			'comment_status' => 'closed'
+		) );
+	}
+
+	/**
+	 * Filter the_content with the activity index template part
+	 */
+	public function content() {
+		bp_buffer_template_part( 'activity/index' );
+	}
+
+}
 
 /** HOOKS ***************************************************************/
 
