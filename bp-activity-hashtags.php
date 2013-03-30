@@ -1,4 +1,4 @@
-<?php
+﻿hp
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /** REGISTRATION ********************************************************/
@@ -112,27 +112,16 @@ add_action( 'bp_screens', 'etivite_bp_activity_hashtags_screen_router' );
  *  version of that hashtag.
  */
 function etivite_bp_activity_hashtags_filter( $content ) {
-	// do our hashtag matching
-	preg_match_all( bp_activity_hashtags_get_data( 'pattern' ), $content, $hashtags );
+	global $bp;
 
-	if ( $hashtags ) {
-		// Make sure there's only one instance of each tag
-		if ( ! $hashtags = array_unique( $hashtags[3] ) )
-			return $content;
+	// save hashtags for later reference so we don't have to parse again
+	$bp->activity->hashtags->temp = array();
 
-		global $bp;
-
-		// save hashtags for later reference so we don't have to parse again
-		$bp->activity->hashtags->temp = $hashtags;
-
-		// watch for edits and if something was already wrapped in html link - thus check for space or word boundary prior
-		foreach( (array)$hashtags as $hashtag ) {
-			$pattern = "/(^|\s|\b)#". $hashtag ."($|\b)/";
-			$content = preg_replace( $pattern, ' <a href="' .  bp_get_activity_hashtags_permalink( htmlspecialchars( $hashtag ) ). '" rel="nofollow" class="hashtag">#'. htmlspecialchars( $hashtag ) .'</a>', $content );
-		}
-	}
-
-	return $content;
+	return preg_replace_callback(
+		bp_activity_hashtags_get_data( 'pattern' ),
+		'bp_activity_hashtags_autolink',
+		$content
+	);
 }
 
 /**
@@ -387,6 +376,52 @@ function bp_activity_hashtags_get_data( $variable = false ) {
 }
 
 /**
+ * Callback to auto-link hashtags from activity content.  Unicode-compatible.
+ * See {@link etivite_bp_activity_hashtags_filter()}.
+ *
+ * Derived from the algorithm from the Twitter Autolink::_addLinksToHashtags()
+ * method:
+ * {@link https://github.com/nojimage/twitter-text-php/blob/master/lib/Twitter/Autolink.php#L460}
+ *
+ * With small tweaks to prevent having to query the hashtags again.
+ *
+ * Originally written by {@link http://github.com/mikenz Mike Cochrane}, based
+ * on code by {@link http://github.com/mzsanford Matt Sanford} and heavily
+ * modified by {@link http://github.com/ngnpope Nick Pope}.
+ *
+ * @author    Mike Cochrane <mikec@mikenz.geek.nz>
+ * @author    Nick Pope <nick@nickpope.me.uk>
+ * @copyright Copyright © 2010, Mike Cochrane, Nick Pope
+ * @license   http://www.apache.org/licenses/LICENSE-2.0  Apache License v2.0
+ */
+function bp_activity_hashtags_autolink( $matches ) {
+	// support both hashtag symbols
+	$hash_signs = '#＃';
+
+	// end hashtag pattern
+	$end_hashtag_match = '/\A(?:['.$hash_signs.']|:\/\/)/u';
+
+	list( $all, $before, $hash, $tag, $after ) = array_pad( $matches, 5, '' );
+
+	if ( preg_match( $end_hashtag_match, $after )
+		|| ( ! preg_match( '!\A["\']!', $before ) && preg_match( '!\A["\']!', $after ) )
+		|| preg_match( '!\A</!', $after )
+	) {
+		return $all;
+	}
+
+	global $bp;
+
+	// save hashtag so we don't have to parse them again
+	$bp->activity->hashtags->temp[] = $tag;
+
+	$replacement = $before;
+	$replacement .= '<a href="' .  bp_get_activity_hashtags_permalink( htmlspecialchars( $tag ) ) . '" rel="nofollow" class="hashtag">' . htmlspecialchars( $hash . $tag ) . '</a>';
+
+	return $replacement;
+}
+
+/**
  * Regex pattern to find hashtags.  Unicode-compatible.
  *
  * Uses the algorithm from the Twitter Regex Abstract Class:
@@ -398,7 +433,7 @@ function bp_activity_hashtags_get_data( $variable = false ) {
  *
  * @author    Mike Cochrane <mikec@mikenz.geek.nz>
  * @author    Nick Pope <nick@nickpope.me.uk>
- * @copyright Copyright � 2010, Mike Cochrane, Nick Pope
+ * @copyright Copyright © 2010, Mike Cochrane, Nick Pope
  * @license   http://www.apache.org/licenses/LICENSE-2.0  Apache License v2.0
  */
 function bp_activity_hashtags_get_regex() {
@@ -520,7 +555,7 @@ function bp_activity_hashtags_get_regex() {
 	$tmp['hashtag_alphanumeric'] = '[a-z0-9_'.$tmp['latin_accents'].$tmp['non_latin_hashtag_chars'].$tmp['cj_hashtag_characters'].']';
 	$tmp['hashtag_boundary']     = '(?:\A|\z|[^&a-z0-9_'.$tmp['latin_accents'].$tmp['non_latin_hashtag_chars'].$tmp['cj_hashtag_characters'].'])';
 
-	$tmp['hashtag'] = '('.$tmp['hashtag_boundary'].')(#|＃)('.$tmp['hashtag_alphanumeric'].'*'.$tmp['hashtag_alpha'].$tmp['hashtag_alphanumeric'].'*)';
+	$tmp['hashtag'] = '('.$tmp['hashtag_boundary'].')(#|ï¼ƒ)('.$tmp['hashtag_alphanumeric'].'*'.$tmp['hashtag_alpha'].$tmp['hashtag_alphanumeric'].'*)';
 
 	return '/'.$tmp['hashtag'].'(?=(.*|$))/iu';
 
