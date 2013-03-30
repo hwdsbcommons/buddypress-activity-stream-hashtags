@@ -137,9 +137,7 @@ function bp_activity_hashtags_save_terms( $activity ) {
 		return;
 
 	// save the terms
-	foreach ( (array) $bp->activity->hashtags->temp as $hashtag ) {
-		wp_set_object_terms( $activity->id, $hashtag, bp_activity_hashtags_get_data( 'taxonomy' ) );
-	}
+	wp_set_object_terms( $activity->id, (array) $bp->activity->hashtags->temp, bp_activity_hashtags_get_data( 'taxonomy' ) );
 
 	// unset our temp variable
 	unset( $bp->activity->hashtags->temp );
