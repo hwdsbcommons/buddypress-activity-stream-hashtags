@@ -38,13 +38,13 @@ function etivite_bp_activity_hashtags_init() {
 	add_filter( 'groups_activity_new_update_content', 'etivite_bp_activity_hashtags_filter' );
 
 	//what about blog posts in the activity stream
-	if ( $data['blogactivity']['enabled'] ) {
+	if ( ! empty( $data['blogactivity']['enabled'] ) ) {
 		add_filter( 'bp_blogs_activity_new_post_content', 'etivite_bp_activity_hashtags_filter' );
 		add_filter( 'bp_blogs_activity_new_comment_content', 'etivite_bp_activity_hashtags_filter' );
 	}
 
 	//what about general blog posts/comments?
-	if ( $data['blogposts']['enabled'] ) {
+	if ( ! empty( $data['blogposts']['enabled'] ) ) {
 		add_filter( 'get_comment_text' , 'etivite_bp_activity_hashtags_filter', 9999 );
 		add_filter( 'the_content', 'etivite_bp_activity_hashtags_filter', 9999 );
 	}
