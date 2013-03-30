@@ -170,10 +170,16 @@ add_action( 'bp_activity_deleted_activities', 'bp_activity_hashtags_delete_terms
  *  modify the querystring to find our hashtags.
  */
 function etivite_bp_activity_hashtags_querystring( $query_string, $object ) {
-	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
+	if ( ! bp_is_activity_component() )
+		return $query_string;
+
+	if ( ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
 		return $query_string;
 
 	if ( ! bp_action_variables() )
+		return $query_string;
+
+	if ( strpos( $query_string, 'scope=tag' ) === false )
 		return $query_string;
 
 	if ( bp_is_action_variable( 'feed', 1 ) )
@@ -188,6 +194,35 @@ function etivite_bp_activity_hashtags_querystring( $query_string, $object ) {
 	return $query_string;
 }
 add_filter( 'bp_ajax_querystring', 'etivite_bp_activity_hashtags_querystring', 11, 2 );
+
+/**
+ * Set scope on 'Hashtags' tab when on activity directory.
+ */
+function bp_activity_hashtags_set_scope() {
+	// activity directory
+	if ( ! bp_displayed_user_id() && bp_is_activity_component() && !bp_current_action() ) {
+
+		$scope = ! empty( $_COOKIE['bp-activity-scope'] ) ? $_COOKIE['bp-activity-scope'] : '';
+
+		// if we're on the activity directory and we last-visited a hashtag page,
+		// let's reset the scope to 'all'
+		if ( $scope == 'tag' ) {
+			// reset the scope to 'all'
+			@setcookie( 'bp-activity-scope', 'all', 0, '/' );
+		}
+
+	// activity hashtag page
+	} elseif ( bp_is_activity_component() && bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) ) {
+		$_POST['cookie'] = 'bp-activity-scope%3Dtag%3B%20bp-activity-filter%3D-1';
+	
+		// reset the scope to 'tag' so our 'Hashtags' tab is highlighted
+		@setcookie( 'bp-activity-scope', 'tag', 0, '/' );		
+
+		// reset the dropdown menu to 'Everything'
+		@setcookie( 'bp-activity-filter', '-1', 0, '/' );
+	}
+}
+add_action( 'bp_screens', 'bp_activity_hashtags_set_scope', 9 );
 
 /**
  * Modifies the page title if we're on a hashtag page.
@@ -240,6 +275,22 @@ function etivite_bp_activity_hashtags_header() {
 
 }
 add_action( 'bp_before_activity_loop', 'etivite_bp_activity_hashtags_header' );
+
+/**
+ * Add 'Hashtags' tab to activity directory.
+ */
+function bp_activity_hashtags_add_tab() {
+	if ( ! bp_is_activity_component() )
+		return;
+
+	if ( ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
+		return;
+?>
+
+	<li id="activity-tag"><a href="<?php echo bp_get_activity_hashtags_permalink( urldecode( esc_attr( bp_action_variable( 0 ) ) ) ); ?>" ><?php _e( 'Hashtags', 'bp-activity-hashtags' ); ?></a></li>
+<?php
+}
+add_action( 'bp_activity_type_tabs', 'bp_activity_hashtags_add_tab', 0 );
 
 /**
  * Inject a hashtag feed into the <head> if we're on a hashtag page.
