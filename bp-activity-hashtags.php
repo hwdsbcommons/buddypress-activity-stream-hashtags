@@ -322,7 +322,17 @@ add_filter( 'bp_get_sitewide_activity_feed_link', 'etivite_bp_activity_hashtags_
  * Inject a header if we're on a hashtag page.
  */
 function etivite_bp_activity_hashtags_header() {
-	if ( ! bp_is_activity_component() || ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
+	if ( ! bp_is_activity_component() )
+		return;
+
+	if ( ! bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) )
+		return;
+
+	// grab the AJAX querystring
+	$qs = ! empty( $_POST['cookie'] ) ? urldecode( $_POST['cookie'] ) : '';
+
+	// not a hashtag page? stop now!
+	if ( strpos( $qs, 'bp-activity-scope=tag' ) === false )
 		return;
 
 	printf( __( '<h3>Activity results for #%s</h3>', 'bp-activity-hashtags' ), urldecode( esc_attr( bp_action_variable( 0 ) ) ) );
