@@ -24,6 +24,10 @@ function etivite_bp_activity_hashtags_init() {
 
 	$data = get_option( 'etivite_bp_activity_stream_hashtags' );
 
+	if ( empty( $data['slug'] ) ) {
+		$data['slug'] = 'hashtag';
+	}
+
 	//if you want to change up the /activity/tag/myhashtag
 	if ( !defined( 'BP_ACTIVITY_HASHTAGS_SLUG' ) )
 		define( 'BP_ACTIVITY_HASHTAGS_SLUG', $data['slug'] );
