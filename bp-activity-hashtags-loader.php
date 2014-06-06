@@ -101,10 +101,10 @@ function etivite_bp_activity_hashtags_admin_add_action_link( $links, $file ) {
 }
 add_filter( 'plugin_action_links', 'etivite_bp_activity_hashtags_admin_add_action_link', 10, 2 );
 
-
+/**
+ * Get version number of the plugin.
+ */
 function etivite_plugin_get_version() {
-$plugin_data = get_plugin_data( __FILE__ );
-$plugin_version = $plugin_data['Version'];
-return $plugin_version;
+	$plugin_data = get_plugin_data( __FILE__ );
+	return $plugin_data['Version'];
 }
-?>
