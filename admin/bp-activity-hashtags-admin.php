@@ -1,4 +1,25 @@
 <?php
+/**
+ * Register menu page in admin area.
+ */
+function etivite_bp_activity_hashtags_admin_add_admin_menu() {
+	if ( ! is_super_admin() ) {
+		return;
+	}
+
+	add_submenu_page( 'bp-general-settings', __( 'Activity Hashtags Admin', 'bp-activity-hashtags' ), __( 'Activity Hashtags', 'bp-activity-hashtags' ), 'manage_options', 'bp-activity-hashtags-settings', 'etivite_bp_activity_hashtags_admin' );
+
+	//set up defaults
+	$new = Array();
+	$new['slug'] = 'tag';
+	$new['install_version'] = etivite_plugin_get_version();
+	add_option( 'etivite_bp_activity_stream_hashtags', $new );
+}
+add_action( bp_core_admin_hook(), 'etivite_bp_activity_hashtags_admin_add_admin_menu' );
+
+/**
+ * Admin page screen.
+ */
 function etivite_bp_activity_hashtags_admin() {
 	global $bp;
 
@@ -97,4 +118,25 @@ function etivite_bp_activity_hashtags_admin() {
 	</div>
 <?php
 }
-?>
+
+/**
+ * Add "Settings" action link on plugins list table.
+ *
+ * Stolen from Welcome Pack - thanks, Paul! then stolen from boone.
+ */
+function etivite_bp_activity_hashtags_admin_add_action_link( $links, $file ) {
+	if ( 'buddypress-activity-stream-hashtags/bp-activity-hashtags-loader.php' != $file )
+		return $links;
+
+	if ( function_exists( 'bp_core_do_network_admin' ) ) {
+		$settings_url = add_query_arg( 'page', 'bp-activity-hashtags-settings', bp_core_do_network_admin() ? network_admin_url( 'admin.php' ) : admin_url( 'admin.php' ) );
+	} else {
+		$settings_url = add_query_arg( 'page', 'bp-activity-hashtags-settings', is_multisite() ? network_admin_url( 'admin.php' ) : admin_url( 'admin.php' ) );
+	}
+
+	$settings_link = '<a href="' . $settings_url . '">' . __( 'Settings', 'bp-activity-hashtags' ) . '</a>';
+	array_unshift( $links, $settings_link );
+
+	return $links;
+}
+add_filter( 'plugin_action_links', 'etivite_bp_activity_hashtags_admin_add_action_link', 10, 2 );
