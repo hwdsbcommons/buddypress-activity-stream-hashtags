@@ -38,8 +38,9 @@ function bp_activity_hashtags_register_taxonomy() {
 			'delete_terms' => 'edit_users',
 			'assign_terms' => 'read',
 		),
-		'query_var' => false,
-		'rewrite'   => false
+		'query_var'         => false,
+		'rewrite'           => false,
+		'show_in_nav_menus' => bp_is_root_blog()
 	);
 
 	// register the 'hashtag' taxonomy
