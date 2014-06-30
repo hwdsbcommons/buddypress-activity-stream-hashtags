@@ -48,7 +48,7 @@ function etivite_bp_activity_hashtags_admin() {
 			$new['blogposts']['enabled'] = false;
 		}
 
-		update_option( 'etivite_bp_activity_stream_hashtags', $new );
+		bp_update_option( 'etivite_bp_activity_stream_hashtags', $new );
 
 		$updated = true;
 
@@ -60,7 +60,7 @@ function etivite_bp_activity_hashtags_admin() {
 
 		<?php if ( isset($updated) ) : echo "<div id='message' class='updated fade'><p>" . __( 'Settings updated.', 'bp-activity-hashtags' ) . "</p></div>"; endif;
 
-		$data = get_option( 'etivite_bp_activity_stream_hashtags' );
+		$data = bp_get_option( 'etivite_bp_activity_stream_hashtags' );
 		?>
 
 		<form action="<?php echo network_admin_url('/admin.php?page=bp-activity-hashtags-settings') ?>" name="groups-autojoin-form" id="groups-autojoin-form" method="post">
