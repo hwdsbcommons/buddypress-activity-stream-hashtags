@@ -46,7 +46,7 @@ function bp_activity_hashtags_register_taxonomy() {
 	// register the 'hashtag' taxonomy
 	//
 	// issues to be aware of:
-	// (1) we're attaching this to the 'activity' object type, which doesn't exist
+	// (1) we're attaching this to the 'bp_activity' object type, which doesn't exist
 	//     and is more like a pseudo-type. but WP doesn't block this functionality
 	//     at the moment. however WP could "fix" this in the future and break this
 	//
@@ -59,10 +59,9 @@ function bp_activity_hashtags_register_taxonomy() {
 	//     http://justintadlock.com/archives/2011/10/20/custom-user-taxonomies-in-wordpress#comment-503194
 	register_taxonomy(
 		bp_activity_hashtags_get_data( 'taxonomy' ),
-		apply_filters( 'bp_activity_hashtags_object_type', 'activity' ),
+		apply_filters( 'bp_activity_hashtags_object_type', 'bp_activity' ),
 		apply_filters( 'bp_activity_hashtags_taxonomy_args', $args )
 	);
-
 }
 
 add_action( 'bp_setup_globals', 'bp_activity_hashtags_register_taxonomy' );
