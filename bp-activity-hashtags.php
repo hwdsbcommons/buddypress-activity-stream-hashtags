@@ -81,17 +81,37 @@ function etivite_bp_activity_hashtags_screen_router() {
 	if ( ! bp_action_variables() )
 		return false;
 
+	// RSS feed support
 	if ( bp_is_action_variable( 'feed', 1 ) ) {
-		global $wp_query;
+		// the cool way (BP 1.8+)
+		if ( class_exists( 'BP_Activity_Feed' ) ) {
+			global $bp;
+		
+			// setup the feed
+			$bp->activity->feed = new BP_Activity_Feed( array(
+				'id'            => 'sitewide-hashtag',
+				'title'         => sprintf( __( '%1$s | #%2$s | Hashtag', 'bp-follow' ), bp_get_site_name(), urldecode( esc_attr( bp_action_variable( 0 ) ) ) ),
+				'link'          => bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) ),
+				'description'   => sprintf( __( "Activity feed for the hashtag, #%s.", 'buddypress' ), urldecode( esc_attr( bp_action_variable( 0 ) ) ) ),
+				'activity_args' => array(
+					'search_terms'     => '#' . bp_action_variable( 0 ) . '<',
+					'display_comments' => 'stream'
+				)
+			) );
 
-		$link      = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) );
-		$link_self = $link . '/feed/';
-
-		$wp_query->is_404 = false;
-		status_header( 200 );
-
-		include_once( dirname( __FILE__ ) . '/feeds/bp-activity-hashtags-feed.php' );
-		die;
+		// the ugly way
+		} else {
+			global $wp_query;
+	
+			$link      = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) );
+			$link_self = $link . '/feed/';
+	
+			$wp_query->is_404 = false;
+			status_header( 200 );
+	
+			include_once( dirname( __FILE__ ) . '/feeds/bp-activity-hashtags-feed.php' );
+			die;
+		}
 
 	} else {
 		// BP 1.7 - add theme compat
