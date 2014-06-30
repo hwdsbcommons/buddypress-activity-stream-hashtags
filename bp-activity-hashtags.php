@@ -86,7 +86,7 @@ function etivite_bp_activity_hashtags_screen_router() {
 		// the cool way (BP 1.8+)
 		if ( class_exists( 'BP_Activity_Feed' ) ) {
 			global $bp;
-		
+
 			// setup the feed
 			$bp->activity->feed = new BP_Activity_Feed( array(
 				'id'            => 'sitewide-hashtag',
@@ -102,13 +102,13 @@ function etivite_bp_activity_hashtags_screen_router() {
 		// the ugly way
 		} else {
 			global $wp_query;
-	
+
 			$link      = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) );
 			$link_self = $link . '/feed/';
-	
+
 			$wp_query->is_404 = false;
 			status_header( 200 );
-	
+
 			include_once( dirname( __FILE__ ) . '/feeds/bp-activity-hashtags-feed.php' );
 			die;
 		}
@@ -288,9 +288,9 @@ function bp_activity_hashtags_set_scope() {
 	// activity hashtag page
 	} elseif ( bp_is_activity_component() && bp_is_current_action( BP_ACTIVITY_HASHTAGS_SLUG ) ) {
 		$_POST['cookie'] = 'bp-activity-scope%3Dtag%3B%20bp-activity-filter%3D-1';
-	
+
 		// reset the scope to 'tag' so our 'Hashtags' tab is highlighted
-		@setcookie( 'bp-activity-scope', 'tag', 0, '/' );		
+		@setcookie( 'bp-activity-scope', 'tag', 0, '/' );
 
 		// reset the dropdown menu to 'Everything'
 		@setcookie( 'bp-activity-filter', '-1', 0, '/' );
@@ -421,7 +421,7 @@ function bp_activity_hashtags_filter_tag_cloud_widget( $retval, $widget ) {
 	$bp->activity->hashtags->switch = true;
 
 	// switch to the root blog
-	switch_to_blog( bp_get_root_blog_id() );	
+	switch_to_blog( bp_get_root_blog_id() );
 
 	return $retval;
 }
@@ -496,7 +496,7 @@ function bp_activity_hashtags_tag_cloud_filter( $retval, $tags, $args ) {
 
 		$tag_id = isset($tags[ $key ]->id) ? $tags[ $key ]->id : $key;
 		$tag_name = $tags[ $key ]->name;
-		
+
 		$a[] = "<a href='$tag_link' class='tag-link-$tag_id' title='" . esc_attr__( $tag_title ) . "' style='font-size: " .
 			str_replace( ',', '.', ( $smallest + ( ( $count - $min_count ) * $font_step ) ) )
 			. "$unit;'>#$tag_name</a>";
