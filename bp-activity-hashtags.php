@@ -448,6 +448,23 @@ function bp_activity_hashtags_tag_cloud_filter( $retval, $tags, $args ) {
 }
 add_filter( 'wp_generate_tag_cloud', 'bp_activity_hashtags_tag_cloud_filter', 10, 3 );
 
+/**
+ * Filters the term link to use our our activity hashtag permalink.
+ *
+ * @param string $termlink The term link
+ * @param obj $term The WP term object
+ * @param string $taxonomy The current taxonomy for the term link.
+ */
+function bp_activity_hashtags_filter_tag_link( $termlink, $term, $taxonomy ) {
+	// we're not on our hashtag taxonomy, so stop!
+	if ( $taxonomy != bp_activity_hashtags_get_data( 'taxonomy' ) ) {
+		return $termlink;
+	}
+
+	return bp_get_activity_hashtags_permalink( $term->slug );
+}
+add_filter( 'term_link', 'bp_activity_hashtags_filter_tag_link', 10, 3 );
+
 /** FUNCTIONS ***********************************************************/
 
 /**
