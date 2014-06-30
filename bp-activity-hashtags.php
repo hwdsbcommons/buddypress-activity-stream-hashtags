@@ -373,6 +373,58 @@ function etivite_bp_activity_hashtags_insert_rel_head() {
 add_action( 'bp_head', 'etivite_bp_activity_hashtags_insert_rel_head' );
 
 /**
+ * Always fetch activity hashtags from the root blog.
+ *
+ * Filters the widget display options before output so we can switch to the
+ * BP root blog to grab the correct activity hashtags.
+ *
+ * @param array $retval The current widget instance's settings.
+ * @param WP_Widget $widget The current widget instance.
+ * @return array
+ */
+function bp_activity_hashtags_filter_tag_cloud_widget( $retval, $widget ) {
+	global $bp;
+
+	if ( ! is_multisite() ) {
+		return $retval;
+	}
+
+	if ( $retval['taxonomy'] != bp_activity_hashtags_get_data( 'taxonomy' ) ) {
+		return $retval;
+	}
+
+	if ( $widget->option_name != 'widget_tag_cloud' ) {
+		return $retval;
+	}
+
+	// set marker
+	$bp->activity->hashtags->switch = true;
+
+	// switch to the root blog
+	switch_to_blog( bp_get_root_blog_id() );	
+
+	return $retval;
+}
+add_filter( 'widget_display_callback', 'bp_activity_hashtags_filter_tag_cloud_widget', 10, 2 );
+
+/**
+ * Restores current blog when using hashtags with the "Tag Cloud" widget.
+ *
+ * @see bp_activity_hashtags_filter_tag_cloud_widget()
+ */
+function bp_activity_hashtags_filter_tag_cloud_restore( $retval ) {
+	global $bp;
+
+	if ( isset( $bp->activity->hashtags->switch ) ) {
+		restore_current_blog();
+		unset( $bp->activity->hashtags->switch );
+	}
+
+	return $retval;
+}
+add_filter( 'wp_tag_cloud', 'bp_activity_hashtags_filter_tag_cloud_restore' );
+
+/**
  * Filter the default "Tag Cloud" widget.
  *
  * If using the 'Hashtags' taxonomy for the built-in tag cloud widget, filter
