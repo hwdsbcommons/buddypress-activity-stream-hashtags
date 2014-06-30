@@ -409,7 +409,7 @@ function bp_activity_hashtags_filter_tag_cloud_widget( $retval, $widget ) {
 		return $retval;
 	}
 
-	if ( $retval['taxonomy'] != bp_activity_hashtags_get_data( 'taxonomy' ) ) {
+	if ( isset( $retval['taxonomy'] ) && $retval['taxonomy'] != bp_activity_hashtags_get_data( 'taxonomy' ) ) {
 		return $retval;
 	}
 
