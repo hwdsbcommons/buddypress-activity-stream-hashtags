@@ -3,10 +3,10 @@
 Plugin Name: BuddyPress Activity Stream Hashtags
 Plugin URI: http://wordpress.org/extend/plugins/buddypress-activity-stream-hashtags/
 Description: Enable #hashtags linking within activity stream content - converts before database.
-Author: rich @etiviti
+Author: rich @etiviti, r-a-y
 Author URI: http://etivite.com
 License: GNU GENERAL PUBLIC LICENSE 3.0 http://www.gnu.org/licenses/gpl.txt
-Version: 0.5.1
+Version: 0.6-bleeding
 Text Domain: bp-activity-hashtags
 Network: true
 */

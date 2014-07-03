@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: nuprn1, etivite
+Contributors: nuprn1, etivite, r-a-y
 Donate link: http://etivite.com/donate/
 Tags: buddypress, activity stream, activity, hashtag, hashtags
-Requires at least: PHP 5.2, WordPress 3.2.1, BuddyPress 1.5.1
-Tested up to: PHP 5.2.x, WordPress 3.2.1, BuddyPress 1.5.1
+Requires at least: WordPress 3.4.1, BuddyPress 1.6
+Tested up to: WordPress 3.9.1, BuddyPress 2.0.1
 Stable tag: 0.5.1
 
 This plugin will convert #hashtags references to a link (activity search page) posted within the activity stream
@@ -11,17 +11,12 @@ This plugin will convert #hashtags references to a link (activity search page) p
 == Description ==
 
 ** IMPORTANT **
-This plugin has been updated for BuddyPress 1.5.1
-
-
 
 This plugin will convert #hashtags references to a link (activity search page) posted to the activity stream
 
 Works on the same filters as the @atusername mention filter (see Extra Configuration if you want to enable this on blog/comments activity) - this will convert anything with a leading #
 
 Warning: This plugin converts #hashtags prior to database insert/update. Uninstalling this plugin will not remove #hashtags links from the activity content.
-
-Please note: accepted pattern is: `[#]([_0-9a-zA-Z-]+)` - all linked hashtags will have a css a.hashtag - currently does not support unicode.
 
 = Also works with =
 * BuddyPress Edit Activity Stream plugin 0.3.0 or greater
@@ -66,6 +61,14 @@ Please contact me on http://etivite.com
 
 
 == Changelog ==
+
+= 0.6.0 =
+* Feature: Unicode support for hashtags (uses Twitter's algorithm)
+* Feature: Taxonomy support
+* Feature: Tag cloud widget support - use WP's "Tag Cloud" widget and for "Taxonomy", select "Activity Hashtags"
+* Enhancement: Better multisite support
+* Enhancement: phpDoc throughout the plugin
+* Enhancement: Removed global references with native BP functions
 
 = 0.5.1 =
 
