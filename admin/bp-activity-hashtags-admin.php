@@ -231,13 +231,14 @@ function bp_activity_hashtags_get_admin_path() {
  * @return string
  */
 function bp_activity_hashtags_highlight_menu( $parent_file ) {
-	global $current_screen;
-
-	$taxonomy = $current_screen->taxonomy;
+	global $current_screen, $submenu_file;
 
 	// if taxonomy is our hashtag, set parent file to the "Activity" page
-	if ( $taxonomy == bp_activity_hashtags_get_data( 'taxonomy' ) ) {
+	if ( $current_screen->taxonomy == bp_activity_hashtags_get_data( 'taxonomy' ) ) {
 		$parent_file = 'bp-activity';
+
+		// highlight the 'Activity > Hashtags' menu item
+		$submenu_file = bp_activity_hashtags_get_admin_path();
 	}
 
 	return $parent_file;
@@ -248,7 +249,7 @@ add_action( 'parent_file', 'bp_activity_hashtags_highlight_menu' );
  * Inject some code into the <head> when on the "Activity > Hashtags" page.
  *
  * We need to do a bit more customization when on our "Hashtags" page.
- *  1) To highlight the "Hashtags" page in the admin menu
+ *  1) To relabel a column in the taxonomy list table
  *  2) To hide some UI elements that we don't want visible.
  *
  * @see http://wordpress.stackexchange.com/questions/71865/nuance-in-adding-cpt-and-tax-to-a-submenu
@@ -276,21 +277,8 @@ function bp_activity_hashtags_admin_head() {
 	$wp_post_types[$faux_post_type]->labels  = new stdClass;
 	$wp_post_types[$faux_post_type]->labels->name = __( 'Items', 'bp-activity-hashtags' );
 
-	// highlight menu item and add some CSS to set the screen icon
-	// and hide various elements on the hashtags taxonomy page
+	// hide various elements on the hashtags taxonomy page
 ?>
-
-	<script type="text/javascript">
-	jQuery(document).ready( function($) {
-		var item = $('#bp-activity-hashtags').closest('li');
-
-		// add highlighting to our custom submenu
-		item.addClass('current');
-
-		// remove higlighting from the default menu
-		item.parent().find('li:first').removeClass('current');
-	});
-	</script>
 
 	<style type="text/css">
 		#wpbody-content .form-wrap, label[for=description-hide], #description-hide, .column-description {display:none;}
