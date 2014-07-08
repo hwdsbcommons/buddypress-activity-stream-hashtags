@@ -132,7 +132,7 @@ add_action( 'bp_screens', 'etivite_bp_activity_hashtags_screen_router' );
  * This class sets up the necessary theme compatability actions to safely output
  * the template part to the_title and the_content areas of a theme.
  */
-class BP_Activity_HashTags_Theme_Compat {
+class BP_Activity_Hashtags_Theme_Compat {
 
 	/**
 	 * Constructor
@@ -171,7 +171,7 @@ class BP_Activity_HashTags_Theme_Compat {
 	 * Filter the_content with the activity index template part
 	 */
 	public function content() {
-		bp_buffer_template_part( 'activity/index' );
+		return bp_buffer_template_part( 'activity/index', null, false );
 	}
 
 }
