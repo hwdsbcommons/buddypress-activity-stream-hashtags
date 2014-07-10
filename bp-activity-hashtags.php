@@ -103,9 +103,6 @@ function etivite_bp_activity_hashtags_screen_router() {
 		} else {
 			global $wp_query;
 
-			$link      = bp_get_activity_hashtags_permalink( esc_attr( bp_action_variable( 0 ) ) );
-			$link_self = $link . '/feed/';
-
 			$wp_query->is_404 = false;
 			status_header( 200 );
 
