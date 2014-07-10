@@ -456,11 +456,17 @@ add_filter( 'wp_tag_cloud', 'bp_activity_hashtags_filter_tag_cloud_restore' );
  * @return mixed Either an array or string of the generated tag cloud.
  */
 function bp_activity_hashtags_tag_cloud_filter( $retval, $tags, $args ) {
-	if ( $args['taxonomy'] != bp_activity_hashtags_get_data( 'taxonomy' ) )
+	if ( empty( $args['taxonomy'] ) ) {
 		return $retval;
+	}
 
-	if ( empty( $tags ) )
+	if ( $args['taxonomy'] != bp_activity_hashtags_get_data( 'taxonomy' ) ) {
 		return $retval;
+	}
+
+	if ( empty( $tags ) ) {
+		return $retval;
+	}
 
 	/** the following is mostly a duplicate of wp_generate_tag_cloud() *****/
 
