@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /** REGISTRATION ********************************************************/
@@ -117,7 +117,6 @@ function etivite_bp_activity_hashtags_screen_router() {
 		}
 
 		bp_core_load_template( 'activity/index' );
-
 	}
 
 }
