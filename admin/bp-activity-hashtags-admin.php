@@ -6,11 +6,13 @@
  * Register menu page in admin area.
  */
 function etivite_bp_activity_hashtags_admin_add_admin_menu() {
+	global $bp;
+
 	if ( ! is_super_admin() ) {
 		return;
 	}
 
-	add_submenu_page( 'bp-general-settings', __( 'Activity Hashtags Admin', 'bp-activity-hashtags' ), __( 'Activity Hashtags', 'bp-activity-hashtags' ), 'manage_options', 'bp-activity-hashtags-settings', 'etivite_bp_activity_hashtags_admin' );
+	add_submenu_page( $bp->admin->settings_page, __( 'Activity Hashtags Admin', 'bp-activity-hashtags' ), __( 'BP Activity Hashtags', 'bp-activity-hashtags' ), 'manage_options', 'bp-activity-hashtags-settings', 'etivite_bp_activity_hashtags_admin' );
 
 	//set up defaults
 	$new = Array();
