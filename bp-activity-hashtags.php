@@ -24,6 +24,10 @@ add_action( 'bp_setup_globals', 'bp_activity_hashtags_setup_globals' );
  * Register taxonomy for hashtags.
  */
 function bp_activity_hashtags_register_taxonomy() {
+	if ( false === bp_is_root_blog() ) {
+		return;
+	}
+
 	// Setup our taxonomy args
 	$args = array(
 		'labels' => array(
@@ -413,6 +417,11 @@ function bp_activity_hashtags_filter_tag_cloud_widget( $retval, $widget ) {
 	global $bp;
 
 	if ( ! is_multisite() ) {
+		return $retval;
+	}
+
+	// If hashtags taxonomy isn't available or we're on the BP root blog, bail!
+	if ( false === taxonomy_exists( bp_activity_hashtags_get_data( 'taxonomy' ) ) || true === bp_is_root_blog() ) {
 		return $retval;
 	}
 
