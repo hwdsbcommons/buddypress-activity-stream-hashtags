@@ -8,7 +8,6 @@ Author URI: http://etivite.com
 License: GNU GENERAL PUBLIC LICENSE 3.0 http://www.gnu.org/licenses/gpl.txt
 Version: 0.6-bleeding
 Text Domain: bp-activity-hashtags
-Network: true
 */
 
 //TODO - We really need unicode support =) For example ”#tag” works ok, but ”#?????” — nope.
