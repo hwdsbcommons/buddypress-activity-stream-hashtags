@@ -203,11 +203,22 @@ function bp_activity_hashtags_save_terms( $activity ) {
 	global $bp;
 
 	// see if hashtags were made
-	if ( empty( $bp->activity->hashtags->temp ) )
+	if ( empty( $bp->activity->hashtags->temp ) ) {
 		return;
+	}
+
+	$switched = false;
+	if ( false === bp_is_root_blog() ) {
+		$switched = true;
+		switch_to_blog( bp_get_root_blog_id() );
+	}
 
 	// save the terms
 	wp_set_object_terms( $activity->id, (array) $bp->activity->hashtags->temp, bp_activity_hashtags_get_data( 'taxonomy' ) );
+
+	if ( true === $switched ) {
+		restore_current_blog();
+	}
 
 	// unset our temp variable
 	unset( $bp->activity->hashtags->temp );
