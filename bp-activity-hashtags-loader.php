@@ -62,9 +62,9 @@ function etivite_bp_activity_hashtags_init() {
 
 	// Add the component's administration tab under the "BuddyPress" menu for site administrators
 	if ( is_admin() ) {
-		add_action( 'init', create_function( '', "
-			require ( dirname( __FILE__ ) . '/admin/bp-activity-hashtags-admin.php' );
-		" ) );
+		add_action( 'init', function() {
+			require dirname( __FILE__ ) . '/admin/bp-activity-hashtags-admin.php';
+		} );
 	}
 
 }
